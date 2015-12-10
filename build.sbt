@@ -10,3 +10,6 @@ lazy val commonSettings = Seq(
 
 lazy val tokenizer = project.
   settings(commonSettings: _*)
+
+lazy val plainscala = project.dependsOn(tokenizer).
+  settings(commonSettings: _*)
