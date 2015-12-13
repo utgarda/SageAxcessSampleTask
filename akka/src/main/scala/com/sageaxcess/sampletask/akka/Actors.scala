@@ -18,6 +18,8 @@ object Actors {
 
   final case class InvalidFileException(name: String) extends RuntimeException(s"invalid file: $name")
 
+  case object Done
+
   /**
     * Accepts tasks to read files, reads the header,
     * sends the rest of lines in separate messages to tokenizer actor
@@ -71,7 +73,7 @@ object Actors {
     * accepts custom separators in messages like <code>ChangeSeparator('|')</code>
     * @param counterPath counter actor path in system, default is a sibling lookup path
     */
-  class LinesTokenizer(counterPath: String = s"../$LinesTokenizerDefaultPath")
+  class LinesTokenizer(counterPath: String = s"../$TokensCounterDefaultPath")
     extends Actor
     with akka.actor.ActorLogging {
 
@@ -92,7 +94,8 @@ object Actors {
         log.debug(s"changing separator to $newSeparator")
         separator = newSeparator
       case line: String => tokenizeLine(line)
-      case EOF => context.actorSelection(counterPath) ! EOF
+      case EOF =>
+        context.actorSelection(counterPath) ! EOF
     }
   }
 
@@ -119,6 +122,7 @@ object Actors {
       }
       writer.flush()
       writer.close()
+      context.parent ! Done
     }
 
     override def receive: Actor.Receive = {
