@@ -4,7 +4,7 @@ import java.io.{File, PrintWriter}
 
 import akka.actor._
 import akka.testkit.{ImplicitSender, TestKit}
-import com.sageaxces.sampletask.akka.Actors.{EOF, InvalidFileException, LinesReader, ReadFile}
+import Actors.{EOF, InvalidFileException, LinesReader, ReadFile}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuiteLike}
 
 /**

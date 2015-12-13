@@ -1,4 +1,4 @@
-package com.sageaxces.sampletask.akka
+package com.sageaxcess.sampletask.akka
 
 import akka.actor.{Actor, Status}
 import com.sageaxcess.sampletask.tokenizer.Tokenizer

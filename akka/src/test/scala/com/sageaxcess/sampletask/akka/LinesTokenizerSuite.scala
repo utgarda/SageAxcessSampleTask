@@ -2,7 +2,7 @@ package com.sageaxcess.sampletask.akka
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.sageaxces.sampletask.akka.Actors.{ChangeSeparator, LinesTokenizer}
+import Actors.{ChangeSeparator, LinesTokenizer}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuiteLike}
 
 /**
