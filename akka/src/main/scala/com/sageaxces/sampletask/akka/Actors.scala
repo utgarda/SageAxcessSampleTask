@@ -1,7 +1,7 @@
 package com.sageaxces.sampletask.akka
 
 import akka.actor.{Actor, Status}
-import com.sageaxcess.sampletask.akka.LinesTokenizer
+import com.sageaxcess.sampletask.tokenizer.Tokenizer
 
 /**
   * Actor definitions for SageAxcess sample task implementation with Akka
@@ -20,8 +20,8 @@ object Actors {
     * @param tokenizerPath tokenizer actor path in system, default is a sibling lookup path
     */
   class LinesReader(
-                       tokenizerPath: String = s"../${LinesTokenizer.DefaultRelativePath}"
-                     )
+                     tokenizerPath: String = s"../$LinesTokenizerDefaultPath"
+                   )
     extends Actor
     with akka.actor.ActorLogging {
 
@@ -60,4 +60,37 @@ object Actors {
     }
   }
 
+  case class ChangeSeparator(c: Char)
+
+  /**
+    * Accpts lines for processing, sends results to tokens counter,
+    * accepts custom separators in messages like <code>ChangeSeparator('|')</code>
+    * @param counterPath counter actor path in system, default is a sibling lookup path
+    */
+  class LinesTokenizer(counterPath: String = s"../$LinesTokenizerDefaultPath")
+    extends Actor
+    with akka.actor.ActorLogging {
+
+    val DEFAULT_SEPARATOR = ','
+
+    var separator = DEFAULT_SEPARATOR
+
+    private def tokenizeLine(line: String): Unit = {
+      log.debug(s"processing line: $line")
+      Tokenizer.tokenize(separator)(line).foreach { token =>
+        log.debug(s"sending token: $token")
+        context.actorSelection(counterPath) ! token
+      }
+    }
+
+    override def receive: Receive = {
+      case ChangeSeparator(newSeparator: Char) =>
+        log.debug(s"changing separator to $newSeparator")
+        separator = newSeparator
+      case line: String => tokenizeLine(line)
+    }
+  }
+
+  val LinesTokenizerDefaultPath = "lines-tokenizer"
+  val TokensCounterDefaultPath = "tokens-counter"
 }
