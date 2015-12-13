@@ -13,3 +13,10 @@ lazy val tokenizer = project.
 
 lazy val plainscala = project.dependsOn(tokenizer).
   settings(commonSettings: _*)
+
+lazy val akka = project.dependsOn(tokenizer).
+  settings(commonSettings: _*).
+  settings(
+    libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.4.1",
+    libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.4.1"
+  )
