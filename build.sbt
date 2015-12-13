@@ -20,3 +20,11 @@ lazy val akka = project.dependsOn(tokenizer).
     libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.4.1",
     libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.4.1"
   )
+
+lazy val spark = project.dependsOn(tokenizer).
+  settings(commonSettings: _*).
+  settings(
+    libraryDependencies += "org.apache.spark" %% "spark-core" % "1.5.1" % "provided"
+  )
+
+test in assembly := {}
