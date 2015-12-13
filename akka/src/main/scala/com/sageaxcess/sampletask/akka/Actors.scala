@@ -1,7 +1,11 @@
 package com.sageaxcess.sampletask.akka
 
+import java.io.{File, PrintWriter}
+
 import akka.actor.{Actor, Status}
 import com.sageaxcess.sampletask.tokenizer.Tokenizer
+
+import scala.collection.mutable
 
 /**
   * Actor definitions for SageAxcess sample task implementation with Akka
@@ -88,6 +92,47 @@ object Actors {
         log.debug(s"changing separator to $newSeparator")
         separator = newSeparator
       case line: String => tokenizeLine(line)
+      case EOF => context.actorSelection(counterPath) ! EOF
+    }
+  }
+
+  /**
+    * Accepts tokens, counts them, writes to file on EOF,
+    */
+  class TokensCounter(
+                       outputFileName: String,
+                       outputSeparator: String = ":"
+                     )
+    extends Actor
+    with akka.actor.ActorLogging {
+
+    val counts: mutable.Map[String, Long] = new mutable.HashMap[String, Long]
+
+    private def writeResult(): Unit = {
+      log.debug(s"writing result token counts to $outputFileName")
+      val writer = new PrintWriter(new File(outputFileName))
+      counts.foreach {
+        case (token: String, count: Long) =>
+          writer.print(token)
+          writer.print(outputSeparator)
+          writer.println(count)
+      }
+      writer.flush()
+      writer.close()
+    }
+
+    override def receive: Actor.Receive = {
+      case token: String =>
+        counts.put(token, counts.getOrElse(token, 0L) + 1)
+        log.debug(s"new count for token $token is ${counts(token)}")
+      case EOF =>
+        try {
+          writeResult()
+        } catch {
+          case e: Exception =>
+            log.error("can't write results to file", e)
+            context.parent ! Status.Failure(e)
+        }
     }
   }
 
