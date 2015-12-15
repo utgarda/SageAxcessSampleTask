@@ -5,7 +5,8 @@ import java.io.{File, PrintWriter}
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
-  * Created by etsvigun on 12/14/15.
+  * Spark-based tokens count for SageAxcess test task
+  * not exactly a prod setup, input and output files read/written to local filesystems to keep it simple.
   */
 object TokensCount {
   private val AppName = "TokensCount"
@@ -14,11 +15,18 @@ object TokensCount {
   private val DEFAULT_OUTPUT = "/tmp/output"
 
   def main(args: Array[String]) {
+    val inputFileName = if (args.nonEmpty) {
+      s"file://${args(0)}"
+    } else DEFAULT_INPUT
+    val outputFileName = if (args.length > 1) {
+      args(1)
+    } else DEFAULT_OUTPUT
+
     val conf = new SparkConf().setAppName(AppName)
     val sc = new SparkContext(conf)
 
 
-    val file = sc.textFile(DEFAULT_INPUT)
+    val file = sc.textFile(inputFileName)
     //dropping header
     val csvLines = file.mapPartitionsWithIndex { (idx, iter) =>
       if (idx == 0) iter.drop(1) else iter
@@ -33,7 +41,7 @@ object TokensCount {
     sc.stop()
 
 
-    val writer = new PrintWriter(new File(DEFAULT_OUTPUT))
+    val writer = new PrintWriter(new File(outputFileName))
     counts.foreach {
       case (token, count) =>
         writer.print(token)

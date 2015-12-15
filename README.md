@@ -40,18 +40,28 @@ A sample task for SageAxcess, showing usage of plain Scala, Akka, and Spark for 
 #### Spark
     sbt spark/assembly
 
-    docker cp ./spark/target/scala-2.11/spark-assembly-1.0.jar 60e3450c9478:/tmp/spark-assembly-1.0.jar
-    docker cp ./input.csv 60e3450c9478:/tmp/input.csv
+    docker run -it -p 8088:8088 -p 8042:8042 -h sandbox sequenceiq/spark:1.5.1 bash
+
+    //In another terminal
+    docker ps
+    CONTAINER ID        IMAGE                    COMMAND                  CREATED              STATUS              PORTS                                                                                                                                               NAMES
+    XXXX_ID_XXXX        sequenceiq/spark:1.5.1   "/etc/bootstrap.sh ba" ...
+    
+    docker cp ./spark/target/scala-2.11/spark-assembly-1.0.jar XXXX_ID_XXXX:/tmp/spark-assembly-1.0.jar
+    docker cp ./input.csv XXXX_ID_XXXX:/tmp/input.csv
     
     //In docker container 
-    spark-submit --class com.sageaxcess.sampletask.spark.TokensCount --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1 /tmp/spark-assembly-1.0.jar 
-    cat /tmp/output
-    in row 2:1
+    spark-submit --class com.sageaxcess.sampletask.spark.TokensCount \
+    --master yarn-client /tmp/tokens-count-spark.jar \
+    /tmp/tokens-count-input.csv /tmp/out 
+    
+    cat /tmp/out
     data goes:1
+    here:1
     some:1
     data:3
-    here:1
     more:3
+    in row 2:1
 
 ### Testing
 `sbt test`
