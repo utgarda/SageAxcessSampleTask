@@ -5,6 +5,7 @@ import java.io.File
 import akka.actor._
 import akka.testkit.{ImplicitSender, TestKit}
 import com.sageaxcess.sampletask.akka.Actors.{EOF, TokensCounter}
+import org.scalatest.concurrent.Eventually._
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuiteLike}
 
 /**
@@ -45,6 +46,8 @@ class TokensCounterSuite(_system: ActorSystem)
     testedTokensCounter ! "bbb"
     testedTokensCounter ! "aaa"
     testedTokensCounter ! EOF
-    assert(io.Source.fromFile(f.getAbsolutePath).getLines().toSet == Set("aaa:2", "bbb:1"))
+    eventually {
+      assert(io.Source.fromFile(f.getAbsolutePath).getLines().toSet == Set("aaa:2", "bbb:1"))
+    }
   }
 }
