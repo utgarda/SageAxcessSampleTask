@@ -2,7 +2,6 @@ package com.sageaxcess.sampletask.spark
 
 import java.io.{File, PrintWriter}
 
-import com.sageaxcess.sampletask.tokenizer.Tokenizer
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
@@ -24,11 +23,12 @@ object TokensCount {
     val csvLines = file.mapPartitionsWithIndex { (idx, iter) =>
       if (idx == 0) iter.drop(1) else iter
     }
-    val words = csvLines flatMap Tokenizer.tokenize()
 
-    val wordCounts = words.map(x => (x, 1)).reduceByKey(_ + _)
+    val tokens = TokensCountTransformations.tokenize(csvLines)
 
-    val counts = wordCounts.collect()
+    val tokenCounts = TokensCountTransformations.count(tokens)
+
+    val counts = tokenCounts.collect()
 
     sc.stop()
 
